@@ -1,0 +1,5 @@
+https://github.com/katzer/cordova-plugin-local-notifications/wiki/11.-Samples
+
+http://stackoverflow.com/questions/30958168/how-to-send-user-to-a-specific-page-on-clicking-ngcordova-local-notification-whe
+
+joinMeeting(notification.data.meetingId);
