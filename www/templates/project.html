@@ -1,0 +1,65 @@
+<ion-view>
+
+	<ion-content class="has-header"   overflow-scroll = "true">
+		<div   class="boldtext font_size_20px orangeText text_align_center headerTextMrg ">
+			<span class="btmborder padding5px">Project List</span>
+		</div>
+
+		<div class="spinnerDiv" ng-show="vm.showSpinner"><span><ion-spinner icon="lines" class="spinner-energized"></ion-spinner></span></div>
+
+		<div class="spinnerDiv background_transparent" ng-show="!vm.showSpinner && vm.projectList.length == 0">
+			<span>No records </span>
+		</div>
+
+		<div  ng-repeat="project in filtered = vm.projectList | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+			<div class="padding10">
+			<div class ="row valuetabletd  btmborder">
+
+				<div class="col3 mrgrgt5p">
+					<div class="position_relative displayflex mrg_top5px">
+						<div class="with50p">Name</div>
+						<div class="with50p">
+							<span>{{project.Name}}</span>
+						</div>
+					</div>
+					<div class="position_relative displayflex mrg_top5px">
+						<div class="with50p">Date</div>
+						<div class="with50p">
+							<span>{{project.End_date | date}}</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="col3 mrgrgt5p">
+					<div class="position_relative displayflex mrg_top5px" ng-if="(project.Email)">
+						<div class="with50p">Email</div>
+						<div class="with50p">
+							<span>{{project.Email}}</span>
+						</div>
+					</div>
+					<div class="position_relative displayflex mrg_top5px">
+						<div class="with50p">Adress</div>
+						<div class="with50p">
+							<span>		
+								<address ng-click="vm.openMap(activity.allActivity.Address)"  
+								parameter="project.Address"></address>
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="col3 mrgrgt5p resbtmborder">
+					<div class="position_relative displayflex mrg_top5px" ng-if="(project.Phone)">
+						<div class="with50p">Phone</div>
+						<div class="with50p">
+							<span>{{project.Phone}}</span>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		</div>
+		<div class="display_inlineflex margin0auto with100p"><pagination  ng-model="currentPage" total-items="vm.projectList.length" max-size="noOfPages"  boundary-links="true" items-per-page="entryLimit"> </pagination></div>
+	</ion-content>
+</ion-view>
