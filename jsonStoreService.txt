@@ -1,0 +1,122 @@
+(function () {
+    'use strict';
+
+    angular
+        .module('beam')
+        .factory('jsonStoreService', jsonStoreService);
+
+    jsonStoreService.$inject = ['$window', 'MFPClientPromise', '$q', '$log'];
+    function jsonStoreService($window, MFPClientPromise, $q, $log) {
+        var storeOptions = {
+            username: 'lasership',
+            password: 'lasership',
+            analytics: true,
+        };
+        var service = {
+            initStore: initStore,
+            closeStore: closeStore,
+            destroyStore: destroyStore,
+            getManifestCollection : getManifestCollection,
+            getDriverCollection : getDriverCollection,
+            getPackageStatusCollection : getPackageStatusCollection,
+            getEventsCollection: getEventsCollection,
+            getCustomerCollection: getCustomerCollection,
+            clearCollsforNewSession : clearCollsforNewSession,
+            clearCustomerCollection : clearCustomerCollection,
+            getGeofencesCollection : getGeofencesCollection
+        };
+
+        return service;
+
+        function initStore(username) {
+            storeOptions.username = username;
+            storeOptions.password = 'lasership';
+            var def = $q.defer();
+            var collections = {
+                manifest: {
+                    searchFields: { Barcode: 'string', PieceKey: 'string', CustomerID: 'string', 'Destination.StopIdentifier': 'string', Destination: 'string',Origin:'string','Origin.StopIdentifier':'string',_pickupItem:'boolean',_deliveryItem:'boolean' }
+                },
+                driverColl: {
+                    searchFields: { driverId: 'string', password: 'string' }
+                },
+                events: {
+                    searchFields: {_eventID:'integer'}
+                },
+                packageStatus: {
+                    searchFields: { Barcode: 'string', StopIdentifier: 'string', Loaded: 'boolean', PickUp: 'boolean', Attempted: 'boolean', Delivered : 'boolean', Assigned : 'boolean'} 
+                },
+                customerCollection: {
+                    searchFields: {customerId : 'string'}
+                },
+                geofencesCollection: {
+                    searchFields: {StopIdentifier: 'string'}
+                }
+
+            };
+            WL.JSONStore.init(collections, storeOptions).then(function (collections) {
+                // handle success - collection.people (people's collection)
+                def.resolve('Done');
+            }).fail(function (error) {
+                // handle failure
+                $log.warn('Setup store error', error);
+                def.reject(error);
+            });
+            return def.promise;
+        }
+        function getManifestCollection() {
+            return WL.JSONStore.get('manifest');
+        }
+        function getDriverCollection() {
+            return WL.JSONStore.get('driverColl');
+        }
+        function getEventsCollection() {
+            return WL.JSONStore.get('events');
+        }
+        function getPackageStatusCollection() {
+            return WL.JSONStore.get('packageStatus');
+        }
+        function getGeofencesCollection() {
+            return WL.JSONStore.get('geofencesCollection');
+        }
+
+        function closeStore() {
+            WL.JSONStore.closeAll().then(function(){
+                $log.warn('Store is closed');
+            },function(err){
+                $log.error('Err closing store',err);
+            });
+        }
+        function destroyStore() {
+            //DONOT USE THIS
+            return WL.JSONStore.destroy();
+        }
+        function getCustomerCollection() {
+            return WL.JSONStore.get('customerCollection');
+        }
+        
+        function clearCollsforNewSession(){
+            var def = $q.defer();
+            var q1 = getManifestCollection().clear();
+            var q2 = getPackageStatusCollection().clear();
+            var q3 = getCustomerCollection().clear();
+            $q.all([q1,q2,q3]).then(function(data){
+                def.resolve('Done');
+            },function(err){
+                $log.error('Error clearing data',err);
+                def.reject(err);
+            });
+            return def.promise;
+        }
+        function clearCustomerCollection() {
+            var def = $q.defer();
+            var q1 = getCustomerCollection().clear();
+            $q.all([q1]).then(function(data){
+                def.resolve('Done');
+            },function(err){
+                $log.error('Error clearing collection data',err);
+                def.reject(err);
+            });
+            return def.promise;
+        }
+    }
+})();
